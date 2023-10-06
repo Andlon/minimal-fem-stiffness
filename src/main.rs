@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use eyre;
 use fenris::assembly::global::{apply_homogeneous_dirichlet_bc_csr, color_nodes, CsrParAssembler};
 use fenris::assembly::local::ElementEllipticAssemblerBuilder;
@@ -8,8 +7,9 @@ use fenris::quadrature::CanonicalStiffnessQuadrature;
 use fenris_solid::materials::{LameParameters, LinearElasticMaterial, YoungPoisson};
 use fenris_solid::MaterialEllipticOperator;
 use nalgebra_sparse::io::save_to_matrix_market_file;
+use std::path::PathBuf;
 
-use clap::{Parser};
+use clap::Parser;
 
 #[derive(Parser)]
 #[command(about)]
@@ -57,8 +57,11 @@ fn main() -> eyre::Result<()> {
     }
     save_to_matrix_market_file(&stiffness_matrix, &cli.output)?;
 
-    println!("Assembled and exported {n} x {n} stiffness matrix with {nnz} non-zeros",
-             n = stiffness_matrix.nrows(), nnz = stiffness_matrix.nnz());
+    println!(
+        "Assembled and exported {n} x {n} stiffness matrix with {nnz} non-zeros",
+        n = stiffness_matrix.nrows(),
+        nnz = stiffness_matrix.nnz()
+    );
 
     Ok(())
 }
