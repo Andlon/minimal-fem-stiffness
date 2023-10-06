@@ -7,9 +7,10 @@ use fenris::quadrature::CanonicalStiffnessQuadrature;
 use fenris_solid::materials::{LameParameters, LinearElasticMaterial, YoungPoisson};
 use fenris_solid::MaterialEllipticOperator;
 use nalgebra_sparse::io::save_to_matrix_market_file;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use clap::Parser;
+use fenris::io::vtk::FiniteElementMeshDataSetBuilder;
 
 #[derive(Parser)]
 #[command(about)]
@@ -56,6 +57,15 @@ fn main() -> eyre::Result<()> {
         std::fs::create_dir_all(parent)?;
     }
     save_to_matrix_market_file(&stiffness_matrix, &cli.output)?;
+
+    // Dump mesh to VTK for inspection, can open with ParaView
+    FiniteElementMeshDataSetBuilder::from_mesh(&mesh).try_export(
+        cli.output
+            .parent()
+            .map(Path::to_path_buf)
+            .unwrap_or_default()
+            .join("mesh.vtk"),
+    )?;
 
     println!(
         "Assembled and exported {n} x {n} stiffness matrix with {nnz} non-zeros",
