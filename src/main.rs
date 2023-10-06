@@ -59,19 +59,20 @@ fn main() -> eyre::Result<()> {
     save_to_matrix_market_file(&stiffness_matrix, &cli.output)?;
 
     // Dump mesh to VTK for inspection, can open with ParaView
-    FiniteElementMeshDataSetBuilder::from_mesh(&mesh).try_export(
-        cli.output
-            .parent()
-            .map(Path::to_path_buf)
-            .unwrap_or_default()
-            .join("mesh.vtk"),
-    )?;
-
+    let vtk_path = cli
+        .output
+        .parent()
+        .map(Path::to_path_buf)
+        .unwrap_or_default()
+        .join("mesh.vtk");
+    FiniteElementMeshDataSetBuilder::from_mesh(&mesh).try_export(&vtk_path)?;
     println!(
         "Assembled and exported {n} x {n} stiffness matrix with {nnz} non-zeros",
         n = stiffness_matrix.nrows(),
         nnz = stiffness_matrix.nnz()
     );
+    println!(" Matrix file path: {}", cli.output.display());
+    println!(" VTK file path: {}", vtk_path.display());
 
     Ok(())
 }
